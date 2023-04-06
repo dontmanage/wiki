@@ -1,0 +1,82 @@
+{% macro render_sidebar_item(item) %}
+<li class="sidebar-item"
+		data-type="{{item.type}}" 
+		data-name="{{item.name}}" 
+		data-title="{{item.title or item.name}}"
+		data-group-name="{{item.group_name or 'sidebar-item'}}"
+		data-route="{{ item.route }}"
+	>
+	<div>
+		<a href="/{{ item.route }}">
+			{{ item.title or item.name }}
+		</a>
+	</div>
+</li>
+{% endmacro %}
+
+{% macro render_sidebar_items(sidebar_items) %}
+	{%- if sidebar_items | len > 0 -%}
+		<ul class="list-unstyled" style="min-height: 20px;">
+			{% for sidebar_group in sidebar_items -%}
+				<li class="sidebar-group"
+					data-type="Wiki Sidebar"
+					data-title="{{sidebar_group}}"
+				>
+					<div class="collapsible">
+						<span class='h6'>{{ sidebar_group }}</span>
+						<span class='add-sidebar-page hide'>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+						</span>
+						<span class='drop-icon'>
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M8 10L12 14L16 10" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+						</span>
+					</div>
+					<ul class="list-unstyled" style="min-height: 20px;">
+						{% for item in sidebar_items[sidebar_group] -%}
+							{{ render_sidebar_item(item) }}
+						{%- endfor %}
+					</ul>
+				</li>
+			{%- endfor %}
+		</ul>
+		<div class="sidebar-edit-mode-btn text-muted"></div>
+		<div class="add-sidebar-group text-muted hide">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+			<span class="small">Add Group</span>
+		</div>
+	{%- endif -%}
+{% endmacro %}
+
+{% macro my_account() %}
+<ul class="list-unstyled management">
+	<li class="sidebar-item">
+		<a class='new-wiki-page text-muted' href="placeholder_link">{{ _("Add a new page") }}</a>
+	</li>
+</ul>
+{% endmacro %}
+
+<div class="web-sidebar" data-name="{{wiki_search_scope}}">
+	<div class="navbar-brand-container">
+		<a class="navbar-brand" alt="Go to home page" href="{{ url_prefix or "" }}{{ home_page or "/" }}">
+			{%- if light_mode_logo -%}
+				<img alt="Logo" data-alt-src="{{ dark_mode_logo }}" src='{{ light_mode_logo }}'>
+			{%- elif dark_mode_logo -%}
+				<img alt="Logo" data-alt-src="{{ light_mode_logo }}" src='{{ dark_mode_logo }}'>
+			{%- elif brand_html -%}
+				{{ brand_html }}
+			{%- else -%}
+				<span>{{ (dontmanage.get_hooks("brand_html") or [_("Home")])[0] }}</span>
+			{%- endif -%}
+		</a>
+	</div>
+	{% if sidebar_title %}
+	<li class="title">
+		{{ sidebar_title }}
+	</li>
+	{% endif %}
+	<div class="sidebar-items">
+		{{ render_sidebar_items(sidebar_items) }}
+	</div>
+</div>
